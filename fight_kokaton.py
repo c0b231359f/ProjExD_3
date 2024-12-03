@@ -24,6 +24,29 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
         tate = False
     return yoko, tate
 
+class Explosion:
+    def __init__(self, obj):
+        """
+        explosion クラスのイニシャライザを設定
+        """
+        self.ex_img_lst = [
+            pg.image.load("fig/explosion.gif"),
+            pg.transform.flip(pg.image.load("fig/explosion.gif"), True, True)
+            ]
+        # 爆発の位置をオブジェクトの中心に合わせる
+        self.rct = self.ex_img_lst[0].get_rect()
+        self.rct.center = obj.rct.center
+        self.life = 120  # 爆発の寿命
+
+    def update(self, screen):
+        """
+        爆発の表示を制御
+        """
+        self.life -= 1
+        if self.life >= 0:
+            # lifeの値に応じて交互に爆発画像を選択し描画する
+            img = self.ex_img_lst[self.life % len(self.ex_img_lst)]
+            screen.blit(img, self.rct)
 
 class Bird:
     """
@@ -180,6 +203,7 @@ def main():
     tmr = 0
     beams = []
     score = Score()
+    ex_lst = []
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -207,6 +231,7 @@ def main():
                 beam.update(screen)
                 for n, bomb in enumerate(bombs):
                     if bomb and beam.rct.colliderect(bomb.rct):
+                        ex_lst.append(Explosion(bomb))
                         # 爆弾を消す
                         bombs[n] = None
                         # スコアを1点増やす
@@ -238,6 +263,9 @@ def main():
         for bomb in bombs:
             if bomb:
                 bomb.update(screen)
+
+        for ex in ex_lst:
+            ex.update(screen) 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         score.update(screen)#スコアの表示
