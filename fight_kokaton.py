@@ -169,16 +169,19 @@ def main():
                 time.sleep(1)
                 return
 
-        key_lst = pg.key.get_pressed()
-        bird.update(key_lst, screen)
-
         if beam:#ビームと爆弾の衝突判定 , 
             beam.update(screen)
             if bomb:
                 if beam.rct.colliderect(bomb.rct):
                     bomb = None
-                    time.sleep(3)
+                    bird.change_img(9, screen)
+                    pg.display.update()
+                    time.sleep(1)
                     return
+
+        key_lst = pg.key.get_pressed()
+        bird.update(key_lst, screen)
+        
         if bomb:
             bomb.update(screen)
 
@@ -192,3 +195,4 @@ if __name__ == "__main__":
     main()
     pg.quit()
     sys.exit()
+    # print("a")
