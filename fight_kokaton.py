@@ -124,7 +124,7 @@ class Beam:
         # self.ビームの左座標 = こうかとんの右座標
         self.rct.centerx = bird.rct.right  # こうかとんの右側から発射
         self.rct.centery = bird.rct.centery  # こうかとんの中心
-        self.vx, self.vy = +5, 0
+        self.vx, self.vy = +7, 0
 
     def update(self, screen: pg.Surface):
         """
