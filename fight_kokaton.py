@@ -251,15 +251,6 @@ def main():
                     time.sleep(1)
                     return
 
-        # for beam in beams:
-        #     if beam:#ビームと爆弾の衝突判定 , 
-        #         beam.update(screen)
-        #         #リストの要素１つ１つに対して、ビームとの衝突判定を行う
-        #         for n, bomb in enumerate(bombs):
-        #             if bomb:
-        #                 if beam.rct.colliderect(bomb.rct):
-        #                     bombs[n] = None
-
         beams = [beam for beam in beams if beam is not None]
         bombs = [bomb for bomb in bombs if bomb is not None]
         beams = [beam for beam in beams if beam.rct.right <= WIDTH]
