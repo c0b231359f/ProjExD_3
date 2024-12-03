@@ -3,6 +3,7 @@ import random
 import sys
 import time
 import pygame as pg
+import math
 
 
 WIDTH = 1100  # ゲームウィンドウの幅
@@ -79,6 +80,7 @@ class Bird:
         self.img = __class__.imgs[(+5, 0)]
         self.rct: pg.Rect = self.img.get_rect()
         self.rct.center = xy
+        self.dire = (+5,0)
 
     def change_img(self, num: int, screen: pg.Surface):
         """
@@ -106,7 +108,8 @@ class Bird:
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):
             self.img = __class__.imgs[tuple(sum_mv)]
         screen.blit(self.img, self.rct)
-
+        if sum_mv != [0,0]:
+            self.dire = sum_mv
 
 # ビームクラス:
 class Beam:
@@ -120,11 +123,11 @@ class Beam:
         """
         self.img = pg.image.load(f"fig/beam.png")
         self.rct = self.img.get_rect()
-        # self.ビームの中心縦座標 = こうかとんの中心縦座標
-        # self.ビームの左座標 = こうかとんの右座標
-        self.rct.centerx = bird.rct.right  # こうかとんの右側から発射
-        self.rct.centery = bird.rct.centery  # こうかとんの中心
-        self.vx, self.vy = +7, 0
+        self.vx, self.vy = bird.dire
+        angle = math.degrees(math.atan2(-self.vy, self.vx))
+        self.img = pg.transform.rotozoom(self.img, angle, 0.9)
+        self.rct.centerx = bird.rct.centerx + bird.rct.width * self.vx / 5 # self.ビームの左座標 = こうかとんの右座標
+        self.rct.centery = bird.rct.centery + bird.rct.height * self.vy / 5# self.ビームの中心縦座標 = こうかとんの中心縦座標
 
     def update(self, screen: pg.Surface):
         """
@@ -226,17 +229,18 @@ def main():
                     time.sleep(1)
                     return
 
+        # ビームと爆弾の衝突判定
         for beam in beams:
             if beam:
                 beam.update(screen)
                 for n, bomb in enumerate(bombs):
                     if bomb and beam.rct.colliderect(bomb.rct):
+                        # 衝突が発生した場合の処理
                         ex_lst.append(Explosion(bomb))
-                        # 爆弾を消す
                         bombs[n] = None
-                        # スコアを1点増やす
+                        beams.remove(beam)  # 衝突したビームをリストから削除
                         score.point += 1
-                        break
+                        break  # 複数の爆弾に対して同時に衝突を処理しないためにループを抜ける
 
         for bomb in bombs:
             if bomb:#こうかとんと爆弾の衝突判定
