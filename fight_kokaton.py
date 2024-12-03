@@ -149,19 +149,18 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
     bg_img = pg.image.load("fig/pg_bg.jpg")
     bird = Bird((300, 200))
-    # bomb = Bomb((255, 0, 0), 10)
     #ボムを複数生成するためのリストを作成
     bombs = [Bomb((255, random.randint(0, 255), random.randint(0, 255)), 10) for _ in range(NUM_OF_BOMBS)]
     clock = pg.time.Clock()
     tmr = 0
-    beam = None
+    beams = []
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 # スペースキー押下でBeamクラスのインスタンス生成
-                beam = Beam(bird)  
+                beams.append(Beam(bird))
         screen.blit(bg_img, [0, 0])
 
         for bomb in bombs:
@@ -177,12 +176,14 @@ def main():
                     time.sleep(1)
                     return
 
-        if beam:#ビームと爆弾の衝突判定 , 
-            beam.update(screen)
-            if bomb:
-                if beam.rct.colliderect(bomb.rct):
-                    bomb = None
-                    bird.change_img(9, screen)
+        for beam in beams:
+            if beam:#ビームと爆弾の衝突判定 , 
+                beam.update(screen)
+                if bomb:
+                    if beam.rct.colliderect(bomb.rct):
+                        bomb = None
+                        # bird.change_img(9, screen)
+
         for bomb in bombs:
             if bomb:#こうかとんと爆弾の衝突判定
                 if bird.rct.colliderect(bomb.rct):
@@ -191,19 +192,19 @@ def main():
                     pg.display.update()
                     time.sleep(1)
                     return
-        
-        if beam:#ビームと爆弾の衝突判定 , 
-            beam.update(screen)
-            #リストの要素１つ１つに対して、ビームとの衝突判定を行う
-            for n, bomb in enumerate(bombs):
-                if bomb:
-                    if beam.rct.colliderect(bomb.rct):
-                        bombs[n] = None
-                        # bird.change_img(9, screen)
-                        # pg.display.update()
-                        # time.sleep(1)
-                        # return
+        for beam in beams:
+            if beam:#ビームと爆弾の衝突判定 , 
+                beam.update(screen)
+                #リストの要素１つ１つに対して、ビームとの衝突判定を行う
+                for n, bomb in enumerate(bombs):
+                    if bomb:
+                        if beam.rct.colliderect(bomb.rct):
+                            bombs[n] = None
+
+        beams = [beam for beam in beams if beam is not None]
         bombs = [bomb for bomb in bombs if bomb is not None]
+        beams = [beam for beam in beams if beam.rct.right <= WIDTH]
+
         for bomb in bombs:
             if bomb:
                 bomb.update(screen)
@@ -213,7 +214,7 @@ def main():
         pg.display.update()
         tmr += 1
         clock.tick(50)
-
+        # print(len(beams))#ビームの数チェック用
 
 if __name__ == "__main__":
     pg.init()
