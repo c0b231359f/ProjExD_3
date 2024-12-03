@@ -244,7 +244,7 @@ def main():
         pg.display.update()
         tmr += 1
         clock.tick(50)
-        print(len(beams))#ビームの数チェック用
+        # print(len(beams))#ビームの数チェック用
 
 if __name__ == "__main__":
     pg.init()
