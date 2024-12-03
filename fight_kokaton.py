@@ -143,6 +143,31 @@ class Bomb:
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
 
+class Score:
+    """
+    スコアに関するクラス
+    """
+    def __init__(self):
+        """
+        スコアクラスの初期設定
+        色、フォントなどを決めている
+        """
+        self.fonto = pg.font.SysFont("hgp創英角ポップ体", 30)
+        self.font_color = (0, 0, 255)
+        self.point = 0
+        self.img = self.fonto.render(f"score : {self.point}", 0, self.font_color)
+        self.x = 100
+        self.y = HEIGHT-50
+
+    def update(self, screen):
+        """
+        スコアの表示に関する処理を行うメソッド
+        現在のスコアを表示させる文字列Sarfaceを生成し、スクリーンにblitする
+        """
+        # スコアが変化した後にスコア表示Surfaceを再生成
+        self.img = self.fonto.render(f"score : {self.point}", 0, self.font_color)
+        # スコアをスクリーンにblit
+        screen.blit(self.img, (self.x, self.y))
 
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
@@ -154,6 +179,7 @@ def main():
     clock = pg.time.Clock()
     tmr = 0
     beams = []
+    score = Score()
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -177,12 +203,15 @@ def main():
                     return
 
         for beam in beams:
-            if beam:#ビームと爆弾の衝突判定 , 
+            if beam:
                 beam.update(screen)
-                if bomb:
-                    if beam.rct.colliderect(bomb.rct):
-                        bomb = None
-                        # bird.change_img(9, screen)
+                for n, bomb in enumerate(bombs):
+                    if bomb and beam.rct.colliderect(bomb.rct):
+                        # 爆弾を消す
+                        bombs[n] = None
+                        # スコアを1点増やす
+                        score.point += 1
+                        break
 
         for bomb in bombs:
             if bomb:#こうかとんと爆弾の衝突判定
@@ -192,6 +221,7 @@ def main():
                     pg.display.update()
                     time.sleep(1)
                     return
+
         for beam in beams:
             if beam:#ビームと爆弾の衝突判定 , 
                 beam.update(screen)
@@ -210,11 +240,11 @@ def main():
                 bomb.update(screen)
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
-
+        score.update(screen)#スコアの表示
         pg.display.update()
         tmr += 1
         clock.tick(50)
-        # print(len(beams))#ビームの数チェック用
+        print(len(beams))#ビームの数チェック用
 
 if __name__ == "__main__":
     pg.init()
